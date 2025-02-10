@@ -38,6 +38,10 @@ const (
 	LBRACE = "{"
 	RBRACE = "}"
 
+	// 配列
+	LBRACKET = "["
+	RBRACKET = "]"
+
 	//キーワード
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
