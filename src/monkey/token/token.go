@@ -50,6 +50,9 @@ const (
 	IF       = "IF"
 	ELSE     = "ELSE"
 	RETURN   = "RETURN"
+
+	// ハッシュ
+	COLON = ":"
 )
 
 var keywords = map[string]TokenType{
