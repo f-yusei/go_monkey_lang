@@ -358,3 +358,28 @@ func (ml *MacroLiteral) String() string {
 
 	return out.String()
 }
+
+type ForStatement struct {
+	Token       token.Token
+	Initializer Statement
+	Condition   Expression
+	Increment   Expression
+	Body        *BlockStatement
+}
+
+func (fs *ForStatement) statementNode()       {}
+func (fs *ForStatement) TokenLiteral() string { return fs.Token.Literal }
+func (fs *ForStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("for ")
+	out.WriteString(fs.Initializer.String())
+	out.WriteString("; ")
+	out.WriteString(fs.Condition.String())
+	out.WriteString("; ")
+	out.WriteString(fs.Increment.String())
+	out.WriteString(" ")
+	out.WriteString(fs.Body.String())
+
+	return out.String()
+}
