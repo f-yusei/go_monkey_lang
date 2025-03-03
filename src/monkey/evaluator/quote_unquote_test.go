@@ -85,7 +85,11 @@ func TestQuoteUnquote(t *testing.T) {
 			`false`,
 		},
 		{
-			`quote(unquote(quote(4 + 4);
+			`quote(unquote(quote(4 + 4)))`,
+			`(4 + 4)`,
+		},
+		{
+			`let quotedInfixExpression = quote(4 + 4);
 			quote(unquote(4 + 4) + unquote(quotedInfixExpression))`,
 			`(8 + (4 + 4))`,
 		},
