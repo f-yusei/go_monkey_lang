@@ -383,3 +383,23 @@ func (fs *ForStatement) String() string {
 
 	return out.String()
 }
+
+type AssignmentStatement struct {
+	Token token.Token // '=' トークン
+	Name  *Identifier
+	Value Expression
+}
+
+func (a *AssignmentStatement) statementNode()       {}
+func (a *AssignmentStatement) TokenLiteral() string { return a.Token.Literal }
+
+func (a *AssignmentStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(a.Name.String())
+	out.WriteString(" " + a.TokenLiteral() + " ")
+	out.WriteString(a.Value.String())
+	out.WriteString(";")
+
+	return out.String()
+}
