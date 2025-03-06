@@ -1072,3 +1072,45 @@ func testCallExpression(t *testing.T, exp ast.Expression, functionName string, a
 
 	return true
 }
+
+func TestBreakStatement(t *testing.T) {
+	input := `
+	break;
+	`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+			len(program.Statements))
+	}
+
+	_, ok := program.Statements[0].(*ast.BreakStatement)
+	if !ok {
+		t.Fatalf("stmt is not *ast.BreakStatement. got=%T", program.Statements[0])
+	}
+}
+
+func TestContinueStatement(t *testing.T) {
+	input := `
+	continue;
+	`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+			len(program.Statements))
+	}
+
+	_, ok := program.Statements[0].(*ast.ContinueStatement)
+	if !ok {
+		t.Fatalf("stmt is not *ast.ContinueStatement. got=%T", program.Statements[0])
+	}
+}
