@@ -955,6 +955,10 @@ func TestAssignmentExpressions(t *testing.T) {
 		{"x = 5;", "x", 5},
 		{"y = true;", "y", true},
 		{"foobar = y;", "foobar", "y"},
+		{"x = 5 + 3;", "x", "(5 + 3)"},
+		{"x = 5 * 5;", "x", "(5 * 5)"},
+		{"y = a * (b + c);", "y", "(a * (b + c))"},
+		{"z = add(1, 2);", "z", "add(1, 2)"},
 	}
 
 	for _, tt := range tests {
@@ -984,8 +988,17 @@ func TestAssignmentExpressions(t *testing.T) {
 				tt.expectedIdentifier, assignmentExpression.Name.TokenLiteral())
 		}
 
-		if !testLiteralExpression(t, assignmentExpression.Value, tt.expectedValue) {
-			return
+		// testLiteralExpressionはリテラル専用なので、式用のチェックを追加
+		switch expected := tt.expectedValue.(type) {
+		case string:
+			if assignmentExpression.Value.String() != expected {
+				t.Errorf("assignmentExpression.Value.String() not %s. got=%s",
+					expected, assignmentExpression.Value.String())
+			}
+		default:
+			if !testLiteralExpression(t, assignmentExpression.Value, expected) {
+				return
+			}
 		}
 	}
 }
