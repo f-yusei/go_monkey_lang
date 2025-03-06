@@ -210,8 +210,6 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 
 	stmt.Increment = p.parseExpression(LOWEST)
 
-	fmt.Printf("stmt.Increment: %v\n", stmt.Increment)
-
 	if !p.expectPeek(token.RPAREN) {
 		return nil
 	}
