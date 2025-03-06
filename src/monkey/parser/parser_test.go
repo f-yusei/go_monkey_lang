@@ -946,6 +946,50 @@ func TestMacroLiteralParsing(t *testing.T) {
 	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
 }
 
+func TestAssignmentExpressions(t *testing.T) {
+	tests := []struct {
+		input              string
+		expectedIdentifier string
+		expectedValue      interface{}
+	}{
+		{"x = 5;", "x", 5},
+		{"y = true;", "y", true},
+		{"foobar = y;", "foobar", "y"},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+				len(program.Statements))
+		}
+
+		stmt := program.Statements[0].(*ast.ExpressionStatement)
+		assignmentExpression, ok := stmt.Expression.(*ast.AssignmentExpression)
+		if !ok {
+			t.Fatalf("exp not *ast.AssignmentExpression. got=%T", stmt.Expression)
+		}
+
+		if assignmentExpression.Name.Value != tt.expectedIdentifier {
+			t.Errorf("assignmentExpression.Name.Value not %s. got=%s",
+				tt.expectedIdentifier, assignmentExpression.Name.Value)
+		}
+
+		if assignmentExpression.Name.TokenLiteral() != tt.expectedIdentifier {
+			t.Errorf("assignmentExpression.Name.TokenLiteral() not %s. got=%s",
+				tt.expectedIdentifier, assignmentExpression.Name.TokenLiteral())
+		}
+
+		if !testLiteralExpression(t, assignmentExpression.Value, tt.expectedValue) {
+			return
+		}
+	}
+}
+
 // func TestForStatement(t *testing.T) {
 // 	input := `
 // 	for (let i = 0; i < 10; i = i + 1) {
