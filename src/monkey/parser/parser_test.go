@@ -1050,6 +1050,110 @@ func TestForStatement(t *testing.T) {
 
 }
 
+func TestForStatementWithBreakContinue(t *testing.T) {
+	input := `
+	for (let i = 0; i < 10; i = i + 1) {
+		if (i == 5) {
+			break;
+		}
+		if (i == 3) {
+			continue;
+		}
+		puts(i);
+	}
+	`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain 1 statement. got=%d",
+			len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ForStatement)
+	if !ok {
+		t.Fatalf("stmt is not *ast.ForStatement. got=%T", program.Statements[0])
+	}
+
+	if !testLetStatement(t, stmt.Initializer, "i") {
+		return
+	}
+
+	if !testInfixExpression(t, stmt.Condition, "i", "<", 10) {
+		return
+	}
+
+	if len(stmt.Body.Statements) != 3 {
+		t.Fatalf("stmt.Body.Statements has not 3 statements. got=%d",
+			len(stmt.Body.Statements))
+	}
+
+	firstStmt, ok := stmt.Body.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt.Body.Statements[0] is not *ast.ExpressionStatement. got=%T",
+			stmt.Body.Statements[0])
+	}
+
+	ifExpr, ok := firstStmt.Expression.(*ast.IfExpression)
+	if !ok {
+		t.Fatalf("stmt.Body.Statements[0] expression is not *ast.IfExpression. got=%T",
+			firstStmt.Expression)
+	}
+
+	if !testInfixExpression(t, ifExpr.Condition, "i", "==", 5) {
+		return
+	}
+
+	if len(ifExpr.Consequence.Statements) != 1 {
+		t.Fatalf("ifExpr.Consequence does not contain 1 statement. got=%d",
+			len(ifExpr.Consequence.Statements))
+	}
+
+	if _, ok := ifExpr.Consequence.Statements[0].(*ast.BreakStatement); !ok {
+		t.Fatalf("ifExpr.Consequence.Statements[0] is not *ast.BreakStatement. got=%T",
+			ifExpr.Consequence.Statements[0])
+	}
+
+	secondStmt, ok := stmt.Body.Statements[1].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt.Body.Statements[1] is not *ast.ExpressionStatement. got=%T",
+			stmt.Body.Statements[1])
+	}
+
+	ifExpr2, ok := secondStmt.Expression.(*ast.IfExpression)
+	if !ok {
+		t.Fatalf("stmt.Body.Statements[1] expression is not *ast.IfExpression. got=%T",
+			secondStmt.Expression)
+	}
+
+	if !testInfixExpression(t, ifExpr2.Condition, "i", "==", 3) {
+		return
+	}
+
+	if len(ifExpr2.Consequence.Statements) != 1 {
+		t.Fatalf("ifExpr2.Consequence does not contain 1 statement. got=%d",
+			len(ifExpr2.Consequence.Statements))
+	}
+
+	if _, ok := ifExpr2.Consequence.Statements[0].(*ast.ContinueStatement); !ok {
+		t.Fatalf("ifExpr2.Consequence.Statements[0] is not *ast.ContinueStatement. got=%T",
+			ifExpr2.Consequence.Statements[0])
+	}
+
+	thirdStmt, ok := stmt.Body.Statements[2].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt.Body.Statements[2] is not *ast.ExpressionStatement. got=%T",
+			stmt.Body.Statements[2])
+	}
+
+	if !testCallExpression(t, thirdStmt.Expression, "puts", "i") {
+		return
+	}
+}
+
 func testCallExpression(t *testing.T, exp ast.Expression, functionName string, arg interface{}) bool {
 	callExp, ok := exp.(*ast.CallExpression)
 	if !ok {
