@@ -311,6 +311,24 @@ func TestFunctionApplication(t *testing.T) {
 	}
 }
 
+func TestAssignmentExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"let a = 0; a = 10; a;", 10},
+		{"let b = 0; b = 5 * 5; b;", 25},
+		{"let y = 5; let foobar = y; foobar;", 5},
+		{"let x = 0; x = 5 + 3; x;", 8},
+		{"let s = 0; let a = 5; let b = 2; let c = 2; s = a * (b + c); s;", 20},
+		{"let z = 0; let add = fn(x,y) { x + y;}; z = add(1, 2); z;", 3},
+	}
+
+	for _, tt := range tests {
+		testIntegerObject(t, testEval(tt.input), tt.expected)
+	}
+}
+
 func TestClosures(t *testing.T) {
 	input := `
 	let newAdder = fn(x) {
