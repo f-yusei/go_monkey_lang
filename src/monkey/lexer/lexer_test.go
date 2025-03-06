@@ -34,6 +34,15 @@ func TestNextToken(t *testing.T) {
 	for (let i = 0; i < 10; i = i + 1) {
 		puts(i);
 	}
+	for (let i = 0; i < 10; i = i + 1) {
+		if (i == 5) {
+			break;
+		}
+		if (i == 3) {
+			continue;
+		}
+		puts(i);
+	}
 	`
 
 	tests := []struct {
@@ -157,6 +166,50 @@ func TestNextToken(t *testing.T) {
 		{token.INT, "1"},
 		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
+		{token.IDENT, "puts"},
+		{token.LPAREN, "("},
+		{token.IDENT, "i"},
+		{token.RPAREN, ")"},
+		{token.SEMICOLON, ";"},
+		{token.RBRACE, "}"},
+		{token.FOR, "for"},
+		{token.LPAREN, "("},
+		{token.LET, "let"},
+		{token.IDENT, "i"},
+		{token.ASSIGN, "="},
+		{token.INT, "0"},
+		{token.SEMICOLON, ";"},
+		{token.IDENT, "i"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.SEMICOLON, ";"},
+		{token.IDENT, "i"},
+		{token.ASSIGN, "="},
+		{token.IDENT, "i"},
+		{token.PLUS, "+"},
+		{token.INT, "1"},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.IF, "if"},
+		{token.LPAREN, "("},
+		{token.IDENT, "i"},
+		{token.EQ, "=="},
+		{token.INT, "5"},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.BREAK, "break"},
+		{token.SEMICOLON, ";"},
+		{token.RBRACE, "}"},
+		{token.IF, "if"},
+		{token.LPAREN, "("},
+		{token.IDENT, "i"},
+		{token.EQ, "=="},
+		{token.INT, "3"},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.CONTINUE, "continue"},
+		{token.SEMICOLON, ";"},
+		{token.RBRACE, "}"},
 		{token.IDENT, "puts"},
 		{token.LPAREN, "("},
 		{token.IDENT, "i"},

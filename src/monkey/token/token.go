@@ -51,6 +51,8 @@ const (
 	FOR      = "FOR"
 	ELSE     = "ELSE"
 	RETURN   = "RETURN"
+	BREAK    = "BREAK"
+	CONTINUE = "CONTINUE"
 
 	// ハッシュ
 	COLON = ":"
@@ -60,15 +62,17 @@ const (
 )
 
 var keywords = map[string]TokenType{
-	"fn":     FUNCTION,
-	"let":    LET,
-	"true":   TRUE,
-	"false":  FALSE,
-	"if":     IF,
-	"for":    FOR,
-	"else":   ELSE,
-	"return": RETURN,
-	"macro":  MACRO,
+	"fn":       FUNCTION,
+	"let":      LET,
+	"true":     TRUE,
+	"false":    FALSE,
+	"if":       IF,
+	"for":      FOR,
+	"else":     ELSE,
+	"return":   RETURN,
+	"macro":    MACRO,
+	"break":    BREAK,
+	"continue": CONTINUE,
 }
 
 func LookupIdent(ident string) TokenType {
