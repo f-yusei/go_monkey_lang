@@ -136,8 +136,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
-	// case token.FOR:
-	// 	return p.parseForStatement()
+	case token.FOR:
+		return p.parseForStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
@@ -183,41 +183,47 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	return stmt
 }
 
-// func (p *Parser) parseForStatement() *ast.ForStatement {
-// 	stmt := &ast.ForStatement{Token: p.curToken}
+func (p *Parser) parseForStatement() *ast.ForStatement {
+	stmt := &ast.ForStatement{Token: p.curToken}
 
-// 	if !p.expectPeek(token.LPAREN) {
-// 		return nil
-// 	}
+	if !p.expectPeek(token.LPAREN) {
+		return nil
+	}
 
-// 	p.nextToken()
+	p.nextToken()
 
-// 	stmt.Initializer = p.parseStatement()
+	stmt.Initializer = p.parseStatement()
 
-// 	if !p.expectPeek(token.SEMICOLON) {
-// 		return nil
-// 	}
+	if !p.curTokenIs(token.SEMICOLON) {
+		return nil
+	}
 
-// 	stmt.Condition = p.parseExpression(LOWEST)
+	p.nextToken()
 
-// 	if !p.expectPeek(token.SEMICOLON) {
-// 		return nil
-// 	}
+	stmt.Condition = p.parseExpression(LOWEST)
 
-// 	stmt.Increment = p.parseExpression(LOWEST)
+	if !p.expectPeek(token.SEMICOLON) {
+		return nil
+	}
 
-// 	if !p.expectPeek(token.RPAREN) {
-// 		return nil
-// 	}
+	p.nextToken()
 
-// 	if !p.expectPeek(token.LBRACE) {
-// 		return nil
-// 	}
+	stmt.Increment = p.parseExpression(LOWEST)
 
-// 	stmt.Body = p.parseBlockStatement()
+	fmt.Printf("stmt.Increment: %v\n", stmt.Increment)
 
-// 	return stmt
-// }
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	stmt.Body = p.parseBlockStatement()
+
+	return stmt
+}
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	// defer untrace(trace("parseExpressionStatement"))

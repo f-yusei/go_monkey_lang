@@ -1003,72 +1003,72 @@ func TestAssignmentExpressions(t *testing.T) {
 	}
 }
 
-// func TestForStatement(t *testing.T) {
-// 	input := `
-// 	for (let i = 0; i < 10; i = i + 1) {
-// 		puts(i);
-// 	}
-// 	`
+func TestForStatement(t *testing.T) {
+	input := `
+	for (let i = 0; i < 10; i = i + 1) {
+		puts(i);
+	}
+	`
 
-// 	l := lexer.New(input)
-// 	p := New(l)
-// 	program := p.ParseProgram()
-// 	checkParserErrors(t, p)
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
 
-// 	if len(program.Statements) != 1 {
-// 		t.Fatalf("program.Statements does not contain 1 statements. got=%d",
-// 			len(program.Statements))
-// 	}
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+			len(program.Statements))
+	}
 
-// 	stmt, ok := program.Statements[0].(*ast.ForStatement)
-// 	if !ok {
-// 		t.Fatalf("stmt is not *ast.ForStatement. got=%T", program.Statements[0])
-// 	}
+	stmt, ok := program.Statements[0].(*ast.ForStatement)
+	if !ok {
+		t.Fatalf("stmt is not *ast.ForStatement. got=%T", program.Statements[0])
+	}
 
-// 	if !testLetStatement(t, stmt.Initializer, "i") {
-// 		return
-// 	}
+	if !testLetStatement(t, stmt.Initializer, "i") {
+		return
+	}
 
-// 	if !testInfixExpression(t, stmt.Condition, "i", "<", 10) {
-// 		return
-// 	}
+	if !testInfixExpression(t, stmt.Condition, "i", "<", 10) {
+		return
+	}
 
-// 	if len(stmt.Body.Statements) != 1 {
-// 		t.Fatalf("stmt.Body.Statements has not 1 statements. got=%d",
-// 			len(stmt.Body.Statements))
-// 	}
+	if len(stmt.Body.Statements) != 1 {
+		t.Fatalf("stmt.Body.Statements has not 1 statements. got=%d",
+			len(stmt.Body.Statements))
+	}
 
-// 	bodyStmt, ok := stmt.Body.Statements[0].(*ast.ExpressionStatement)
-// 	if !ok {
-// 		t.Fatalf("stmt.Body.Statements[0] is not ast.ExpressionStatement. got=%T",
-// 			stmt.Body.Statements[0])
-// 	}
+	bodyStmt, ok := stmt.Body.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt.Body.Statements[0] is not ast.ExpressionStatement. got=%T",
+			stmt.Body.Statements[0])
+	}
 
-// 	if !testCallExpression(t, bodyStmt.Expression, "puts", "i") {
-// 		return
-// 	}
+	if !testCallExpression(t, bodyStmt.Expression, "puts", "i") {
+		return
+	}
 
-// }
+}
 
-// func testCallExpression(t *testing.T, exp ast.Expression, functionName string, arg interface{}) bool {
-// 	callExp, ok := exp.(*ast.CallExpression)
-// 	if !ok {
-// 		t.Errorf("exp not *ast.CallExpression. got=%T", exp)
-// 		return false
-// 	}
+func testCallExpression(t *testing.T, exp ast.Expression, functionName string, arg interface{}) bool {
+	callExp, ok := exp.(*ast.CallExpression)
+	if !ok {
+		t.Errorf("exp not *ast.CallExpression. got=%T", exp)
+		return false
+	}
 
-// 	if !testIdentifier(t, callExp.Function, functionName) {
-// 		return false
-// 	}
+	if !testIdentifier(t, callExp.Function, functionName) {
+		return false
+	}
 
-// 	if len(callExp.Arguments) != 1 {
-// 		t.Errorf("wrong number of arguments. got=%d", len(callExp.Arguments))
-// 		return false
-// 	}
+	if len(callExp.Arguments) != 1 {
+		t.Errorf("wrong number of arguments. got=%d", len(callExp.Arguments))
+		return false
+	}
 
-// 	if !testLiteralExpression(t, callExp.Arguments[0], arg) {
-// 		return false
-// 	}
+	if !testLiteralExpression(t, callExp.Arguments[0], arg) {
+		return false
+	}
 
-// 	return true
-// }
+	return true
+}
