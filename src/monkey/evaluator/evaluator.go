@@ -285,17 +285,22 @@ func evalForStatement(fs *ast.ForStatement, env *object.Environment) object.Obje
 			return result
 		}
 
-		fmt.Printf("blockStatement: %s\n", result.Inspect())
+		// fmt.Printf("blockStatement: %s\n", result.Inspect())
 
 		switch result.(type) {
 		case *object.Break:
 			// 変数を引き継いでからNULLを返す
 			for key, value := range bodyEnv.Outer.Store {
-				fmt.Printf("key: %s, value: %s\n", key, value.Inspect())
+				// fmt.Printf("key: %s, value: %s\n", key, value.Inspect())
 				env.SetRecursive(key, value)
 			}
 			return NULL
 		case *object.Continue:
+			increment := Eval(fs.Increment, forEnv)
+			if isError(increment) {
+				return increment
+			}
+			bodyEnv = extendForBodyEnvironment(bodyEnv, forEnv)
 			continue
 		}
 
