@@ -285,13 +285,10 @@ func evalForStatement(fs *ast.ForStatement, env *object.Environment) object.Obje
 			return result
 		}
 
-		// fmt.Printf("blockStatement: %s\n", result.Inspect())
-
 		switch result.(type) {
 		case *object.Break:
 			// 変数を引き継いでからNULLを返す
 			for key, value := range bodyEnv.Outer.Store {
-				// fmt.Printf("key: %s, value: %s\n", key, value.Inspect())
 				env.SetRecursive(key, value)
 			}
 			return NULL
@@ -313,7 +310,6 @@ func evalForStatement(fs *ast.ForStatement, env *object.Environment) object.Obje
 	}
 
 	for key, value := range bodyEnv.Outer.Store {
-		fmt.Printf("key: %s, value: %s\n", key, value.Inspect())
 		env.SetRecursive(key, value)
 	}
 
@@ -338,7 +334,6 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 
 	for _, statement := range block.Statements {
 		result = Eval(statement, env)
-		fmt.Printf("statement: %s\n", result.Inspect())
 		if result != nil {
 			rt := result.Type()
 			if rt == object.RETURN_VALUE_OBJ || rt == object.ERROR_OBJ || rt == object.BREAK_OBJ || rt == object.CONTINUE_OBJ {
