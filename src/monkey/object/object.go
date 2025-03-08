@@ -28,6 +28,8 @@ const (
 	HASH_OBJ         = "HASH"
 	QUOTE_OBJ        = "QUOTE"
 	MACRO_OBJ        = "MACRO"
+	BREAK_OBJ        = "BREAK"
+	CONTINUE_OBJ     = "CONTINUE"
 )
 
 type Integer struct {
@@ -215,3 +217,13 @@ func (m *Macro) Inspect() string {
 
 	return out.String()
 }
+
+type Break struct{}
+
+func (br *Break) Type() ObjectType { return BREAK_OBJ }
+func (br *Break) Inspect() string  { return "break" }
+
+type Continue struct{}
+
+func (c *Continue) Type() ObjectType { return CONTINUE_OBJ }
+func (c *Continue) Inspect() string  { return "continue" }

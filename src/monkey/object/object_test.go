@@ -20,3 +20,23 @@ func TestStringHashKey(t *testing.T) {
 		t.Errorf("strings with different content have same hash keys")
 	}
 }
+
+func TestBreakObject(t *testing.T) {
+	b := &Break{}
+	if b.Type() != BREAK_OBJ {
+		t.Errorf("unexpected type. got=%s", b.Type())
+	}
+	if b.Inspect() != "break" {
+		t.Errorf("unexpected inspect string. got=%s", b.Inspect())
+	}
+}
+
+func TestContinueObject(t *testing.T) {
+	c := &Continue{}
+	if c.Type() != CONTINUE_OBJ {
+		t.Errorf("unexpected type. got=%s", c.Type())
+	}
+	if c.Inspect() != "continue" {
+		t.Errorf("unexpected inspect string. got=%s", c.Inspect())
+	}
+}

@@ -269,20 +269,26 @@ func TestLetStatements(t *testing.T) {
 	}
 }
 
-// func TestForStatements(t *testing.T) {
-// 	tests := []struct {
-// 		input    string
-// 		expected int64
-// 	}{
-// 		{"for (let i = 0; i < 10; i = i + 1) { i; }", 9},
-// 		{"for (let i = 0; i < 10; i = i + 1) { if (i > 5) { break; } }", 5},
-// 		{"for (let i = 0; i < 10; i = i + 1) { if (i < 5) { continue; } i; }", 9},
-// 	}
+func TestForStatements(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { x = x + 1; } x;", 10},
+		//break
+		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { if (i == 5) { break; } x = x + i; } x;", 10},
+		//continue
+		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { if (i == 5) { continue; } x = x + i; } x;", 40},
+		//continue and break
+		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { if (i == 5) { continue; } if (i == 8) { break; } x = x + i; } x;", 23},
+	}
 
-// 	for _, tt := range tests {
-// 		testIntegerObject(t, testEval(tt.input), tt.expected)
-// 	}
-// }
+	for _, tt := range tests {
+		result := testEval(tt.input)
+		t.Logf("result: %s\n", result)
+		testIntegerObject(t, result, tt.expected)
+	}
+}
 
 func TestFunctionObject(t *testing.T) {
 	input := "fn(x) { x + 2; };"

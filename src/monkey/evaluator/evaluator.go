@@ -46,6 +46,10 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalBlockStatement(node, env)
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
+	case *ast.BreakStatement:
+		return &object.Break{}
+	case *ast.ContinueStatement:
+		return &object.Continue{}
 	case *ast.ReturnStatement:
 		val := Eval(node.ReturnValue, env)
 		if isError(val) {
@@ -58,6 +62,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return val
 		}
 		env.Set(node.Name.Value, val)
+	case *ast.ForStatement:
+		return evalForStatement(node, env)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 	case *ast.FunctionLiteral:
@@ -252,6 +258,63 @@ func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Obje
 	}
 }
 
+func evalForStatement(fs *ast.ForStatement, env *object.Environment) object.Object {
+	forEnv := object.NewEnvironment()
+
+	initializer := Eval(fs.Initializer, forEnv)
+	if isError(initializer) {
+		return initializer
+	}
+
+	//envとforEnvを合体
+	bodyEnv := extendForBodyEnvironment(env, forEnv)
+
+	for {
+		condition := Eval(fs.Condition, forEnv)
+		if isError(condition) {
+			return condition
+		}
+
+		if !isTruthy(condition) {
+			break
+		}
+
+		//本体を評価
+		result := Eval(fs.Body, bodyEnv)
+		if isError(result) {
+			return result
+		}
+
+		fmt.Printf("blockStatement: %s\n", result.Inspect())
+
+		switch result.(type) {
+		case *object.Break:
+			// 変数を引き継いでからNULLを返す
+			for key, value := range bodyEnv.Outer.Store {
+				fmt.Printf("key: %s, value: %s\n", key, value.Inspect())
+				env.SetRecursive(key, value)
+			}
+			return NULL
+		case *object.Continue:
+			continue
+		}
+
+		increment := Eval(fs.Increment, forEnv)
+		if isError(increment) {
+			return increment
+		}
+
+		bodyEnv = extendForBodyEnvironment(bodyEnv, forEnv)
+	}
+
+	for key, value := range bodyEnv.Outer.Store {
+		fmt.Printf("key: %s, value: %s\n", key, value.Inspect())
+		env.SetRecursive(key, value)
+	}
+
+	return NULL
+}
+
 func isTruthy(obj object.Object) bool {
 	switch obj {
 	case NULL:
@@ -270,10 +333,10 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 
 	for _, statement := range block.Statements {
 		result = Eval(statement, env)
-
+		fmt.Printf("statement: %s\n", result.Inspect())
 		if result != nil {
 			rt := result.Type()
-			if rt == object.RETURN_VALUE_OBJ || rt == object.ERROR_OBJ {
+			if rt == object.RETURN_VALUE_OBJ || rt == object.ERROR_OBJ || rt == object.BREAK_OBJ || rt == object.CONTINUE_OBJ {
 				return result
 			}
 		}
@@ -383,6 +446,16 @@ func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Enviro
 	}
 
 	return env
+}
+
+func extendForBodyEnvironment(outer *object.Environment, forEnv *object.Environment) *object.Environment {
+	bodyEnv := object.NewEnclosedEnvironment(outer)
+
+	for key, value := range forEnv.Store {
+		bodyEnv.Set(key, value)
+	}
+
+	return bodyEnv
 }
 
 func unwrapReturnValue(obj object.Object) object.Object {
