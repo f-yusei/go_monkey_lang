@@ -274,18 +274,36 @@ func TestForStatements(t *testing.T) {
 		input    string
 		expected int64
 	}{
+		// 基本的なループ
 		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { x = x + 1; } x;", 10},
-		//break
+		{"let x = 0; for (let i = 10; i > 0; i = i - 1) { x = x + 1; } x;", 10},
+		{"let x = 0; for (let i = 0; i < 10; i = i + 2) { x = x + 1; } x;", 5},
+
+		// 条件が最初から false
+		{"let x = 0; for (let i = 10; i < 0; i = i - 1) { x = x + 1; } x;", 0},
+
+		// break のテスト
 		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { if (i == 5) { break; } x = x + i; } x;", 10},
-		//continue
+		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { x = x + i; if (i == 5) { break; } } x;", 15},
+		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { if (i == 0) { break; } x = x + 1; } x;", 0},
+
+		// continue のテスト
 		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { if (i == 5) { continue; } x = x + i; } x;", 40},
-		//continue and break
+		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { x = x + i; if (i == 5) { continue; } } x;", 45},
+		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { if (i == 0) { continue; } x = x + 1; } x;", 9},
+
+		// break + continue の組み合わせ
 		{"let x = 0; for (let i = 0; i < 10; i = i + 1) { if (i == 5) { continue; } if (i == 8) { break; } x = x + i; } x;", 23},
+
+		// ネストしたループ
+		{"let x = 0; for (let i = 0; i < 3; i = i + 1) { for (let j = 0; j < 3; j = j + 1) { x = x + 1; } } x;", 9},
+		{"let x = 0; for (let i = 0; i < 3; i = i + 1) { for (let j = 0; j < 3; j = j + 1) { if (j == 1) { break; } x = x + 1; } } x;", 3},
+		{"let x = 0; for (let i = 0; i < 3; i = i + 1) { for (let j = 0; j < 3; j = j + 1) { if (j == 1) { continue; } x = x + 1; } } x;", 6},
 	}
 
 	for _, tt := range tests {
 		result := testEval(tt.input)
-		t.Logf("result: %s\n", result)
+		t.Logf("input: %q, result=%s, expected=%d", tt.input, result, tt.expected)
 		testIntegerObject(t, result, tt.expected)
 	}
 }

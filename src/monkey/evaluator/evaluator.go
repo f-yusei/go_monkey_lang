@@ -287,9 +287,8 @@ func evalForStatement(fs *ast.ForStatement, env *object.Environment) object.Obje
 
 		switch result.(type) {
 		case *object.Break:
-			// 変数を引き継いでからNULLを返す
-			for key, value := range bodyEnv.Outer.Store {
-				env.SetRecursive(key, value)
+			for key, value := range bodyEnv.Store {
+				env.Set(key, value)
 			}
 			return NULL
 		case *object.Continue:
@@ -297,7 +296,8 @@ func evalForStatement(fs *ast.ForStatement, env *object.Environment) object.Obje
 			if isError(increment) {
 				return increment
 			}
-			bodyEnv = extendForBodyEnvironment(bodyEnv, forEnv)
+			bodyEnv = combineEnvironments(bodyEnv, forEnv, env)
+
 			continue
 		}
 
@@ -306,10 +306,11 @@ func evalForStatement(fs *ast.ForStatement, env *object.Environment) object.Obje
 			return increment
 		}
 
-		bodyEnv = extendForBodyEnvironment(bodyEnv, forEnv)
+		//ここでforEnvとbodyEnvを合体しenvをouterにセットする
+		bodyEnv = combineEnvironments(bodyEnv, forEnv, env)
 	}
 
-	for key, value := range bodyEnv.Outer.Store {
+	for key, value := range bodyEnv.Store {
 		env.SetRecursive(key, value)
 	}
 
@@ -334,9 +335,14 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 
 	for _, statement := range block.Statements {
 		result = Eval(statement, env)
+
+		fmt.Printf("Evaluating statement: %s\n", statement.String())
+		fmt.Printf("Current result: %s\n", result.Inspect())
+
 		if result != nil {
 			rt := result.Type()
 			if rt == object.RETURN_VALUE_OBJ || rt == object.ERROR_OBJ || rt == object.BREAK_OBJ || rt == object.CONTINUE_OBJ {
+				fmt.Println("Returning early due to:", rt)
 				return result
 			}
 		}
@@ -456,6 +462,20 @@ func extendForBodyEnvironment(outer *object.Environment, forEnv *object.Environm
 	}
 
 	return bodyEnv
+}
+
+func combineEnvironments(env1, env2, outer *object.Environment) *object.Environment {
+	combined := object.NewEnclosedEnvironment(outer)
+
+	for key, value := range env1.Store {
+		combined.Set(key, value)
+	}
+
+	for key, value := range env2.Store {
+		combined.Set(key, value)
+	}
+
+	return combined
 }
 
 func unwrapReturnValue(obj object.Object) object.Object {
